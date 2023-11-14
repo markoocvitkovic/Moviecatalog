@@ -36,7 +36,7 @@
                     $user_id = $user_data['id'];
                 
                     $_SESSION['user_id'] = $user_id;
-                
+                                
                     $_SESSION['username'] = $username;
               
                     header("Location: favorites.php");

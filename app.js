@@ -171,17 +171,38 @@ async function show_popup(card) {
 
     const heart_icon = popup_container.querySelector('.heart-icon');
 
-    const movie_ids = get_LS();
+    const movie_ids =  get_favorites_for_movie(); 
+
     for (let i = 0; i < movie_ids.length; i++) {
-        if (movie_ids[i] == movie_id) heart_icon.classList.add('change-color');
+        if (movie_ids[i] == movie_id) {
+            heart_icon.classList.add('change-color');
+            break; 
+        }
     }
 
-    heart_icon.addEventListener('click', () => {
-        if (heart_icon.classList.contains('change-color')) {
-            remove_LS(movie_id);
+    heart_icon.addEventListener('click', async () => {
+        if (heart_icon.classList.contains('change-color')) {           
+            const responsee = await fetch('add_favorites.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    movieId: movie_id,                   
+                }),
+            });
             heart_icon.classList.remove('change-color');
-        } else {
-            add_to_LS(movie_id);
+        } else {           
+            const responsee = await fetch('delete_favorites.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    movieId: movie_id,                   
+                }),
+            });
+    
             heart_icon.classList.add('change-color');
         }
         fetch_favorite_movies();
@@ -222,29 +243,27 @@ async function show_popup(card) {
     
 }
 
-// Local Storage
-function get_LS () {
-    const movie_ids = JSON.parse(localStorage.getItem('movie-id'))
-    return movie_ids === null ? [] : movie_ids
-}
-function add_to_LS (id) {
-    const movie_ids = get_LS()
-    localStorage.setItem('movie-id', JSON.stringify([...movie_ids, id]))
-}
-function remove_LS (id) {
-    const movie_ids = get_LS()
-    localStorage.setItem('movie-id', JSON.stringify(movie_ids.filter(e => e !== id)))
+async function get_favorites_for_movie(userId) {
+    try {
+        const response = await fetch(`get_favorites.php?user_id=${userId}`);
+        const data = await response.json();
+        return data.favorites || []; 
+    } catch (error) {
+        console.error('Error fetching favorites:', error);
+        return []; 
+    }
 }
 
 // Favorite Movies
 fetch_favorite_movies()
 async function fetch_favorite_movies () {
-    main_grid.innerHTML = ''
-
-    const movies_LS = await get_LS()
+    main_grid.innerHTML = '';
+   
+    const userId = 1;
+    const movies_LS = await get_favorites_for_movie(userId)
     const movies = []
-    for(let i = 0; i <= movies_LS.length - 1; i++) {
-        const movie_id = movies_LS[i]
+    for (let i = 0; i < movies_LS.length; i++) { 
+        const movie_id = movies_LS[i].movie_id; 
         let movie = await get_movie_by_id(movie_id)
         add_favorites_to_dom_from_LS(movie)
         movies.push(movie)
@@ -252,28 +271,29 @@ async function fetch_favorite_movies () {
 }
 
 function add_favorites_to_dom_from_LS (movie_data) {
-    
-	main_grid.innerHTML += `
-    <div class="card" data-id="${movie_data.id}">
-        <div class="img">
-            <img src="${image_path + movie_data.poster_path}">
-        </div>
-        <div class="info">
-            <h2>${movie_data.title}</h2>
-            <div class="single-info">
-                <span>Rate: </span>
-                <span>${movie_data.vote_average} / 10</span>
+    main_grid.innerHTML += `
+        <div class="card" data-id="${movie_data.id}">
+            <div class="img">
+                <img src="${image_path + movie_data.poster_path}">
             </div>
-            <div class="single-info">
-                <span>Release Date: </span>
-                <span>${movie_data.release_date}</span>
+            <div class="info">
+                <h2>${movie_data.title}</h2>
+                <div class="single-info">
+                    <span>Rate: </span>
+                    <span>${movie_data.vote_average} / 10</span>
+                </div>
+                <div class="single-info">
+                    <span>Release Date: </span>
+                    <span>${movie_data.release_date}</span>
+                </div>
             </div>
         </div>
-    </div>
-    `    
+    `;
     const cards = document.querySelectorAll('.card')
     add_click_effect_to_card(cards)
 }
+
+
 
 // Trending Movies
 get_trending_movies()
@@ -282,6 +302,7 @@ async function get_trending_movies () {
     const respData = await resp.json()
     return respData.results
 }
+
 
 add_to_dom_trending()
 async function add_to_dom_trending () {
