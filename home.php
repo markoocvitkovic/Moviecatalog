@@ -4,6 +4,7 @@
 
     if (isset($_SESSION['user_id'])) {
         $user_id = $_SESSION['user_id'];
+        $username = $_SESSION['username'];
     } else {   
         header("Location: login.php");
         exit();
@@ -36,7 +37,7 @@
             </ul>
          </nav>
          <div class="welcome-message">
-            <p>Dobrodošli, ID korisnika: <?php echo $user_id; ?></p>
+            <p>Dobrodošli: <?php echo $username; ?></p>
         </div>
         <div class="search">
             <input type="text" placeholder="Search Movie...">

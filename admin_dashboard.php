@@ -12,13 +12,27 @@
         echo "Failed to connect to MySQL: " . mysqli_connect_error();
     }
 
-    $query = "SELECT username, firstname, lastname, email, create_datetime, dob FROM users"; 
+    if (isset($_POST['delete_user'])) {
+        $userId = $_POST['delete_user'];
+
+        $deleteQuery = "DELETE FROM users WHERE id='$userId'";
+        $deleteResult = mysqli_query($con, $deleteQuery);
+
+        if ($deleteResult) {
+            echo "User deleted successfully.";
+           
+        } else {
+            echo "Error deleting user: " . mysqli_error($con);
+        }
+    }
+
+    $query = "SELECT id, username, firstname, lastname, email, create_datetime, dob FROM users"; 
     $result = mysqli_query($con, $query);
 
     if ($result) {
         $users = mysqli_fetch_all($result, MYSQLI_ASSOC);
     } else {
-        echo "Greška pri upitu: " . mysqli_error($con);
+        echo "Error fetching users: " . mysqli_error($con);
     }
 
     mysqli_close($con);
@@ -47,9 +61,21 @@
         h2, h3 {color: white;}
         a {color: white;}
         hr {border-color: white;}
+        button {
+            background-color: red;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+           
+        }
+        button:hover {
+            background-color: #900;
+        }
     </style>
 </head>
 <body>
+    <div style="margin-right: 20px; margin-top: 20px;">
     <h2>Dobrodošli, Admin!</h2>
     <h3>Svi korisnici:</h3>
     <ul>
@@ -61,6 +87,10 @@
                 <strong>Email:</strong> <?php echo $user['email']; ?><br>
                 <strong>Create Datetime:</strong> <?php echo $user['create_datetime']; ?><br>
                 <strong>Date of Birth:</strong> <?php echo $user['dob']; ?><br>
+                <form method="post" action="">
+                    <input type="hidden" name="delete_user" value="<?php echo $user['id']; ?>">
+                    <button type="submit">Delete user</button>
+                </form>
                 <hr>
             </li>
         <?php endforeach; ?>

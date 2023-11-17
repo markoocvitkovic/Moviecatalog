@@ -1,8 +1,8 @@
 <?php
 session_start();
 
-if (isset($_GET['user_id'])) {
-    $userId = $_GET['user_id'];
+if (isset($_SESSION['user_id'])) {
+    $userId = $_SESSION['user_id'];
 
     $con = mysqli_connect("localhost", "root", "", "moviecatalog");
 
@@ -10,7 +10,7 @@ if (isset($_GET['user_id'])) {
         echo json_encode(array('error' => 'Failed to connect to MySQL: ' . mysqli_connect_error()));
         exit;
     }
-
+    
     $userId = mysqli_real_escape_string($con, $userId); 
     $sql = "SELECT * FROM favorites WHERE user_id = '$userId'";
     $result = mysqli_query($con, $sql);

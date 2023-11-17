@@ -50,8 +50,7 @@ async function add_searched_movies_to_dom () {
                         <span>${e.release_date}</span>
                     </div>
                     <div class="rate-movie">
-                        <span>Rate this movie: </span>
-                        <input type="number" min="1" max="10" step="0.1" placeholder="Enter your rating" />
+                        <span>Rate this movie: </span>                        
                     </div>
                 </div>
             </div>
@@ -79,7 +78,7 @@ async function get_movie_trailer(id) {
         return respData.results[0].key;
     } else {
         console.error('Nije pronađen ključ za trailer u odgovoru API-ja');
-        return null; // 
+        return null;  
     }
 }
 
@@ -182,7 +181,7 @@ async function show_popup(card) {
 
     heart_icon.addEventListener('click', async () => {
         if (heart_icon.classList.contains('change-color')) {           
-            const responsee = await fetch('add_favorites.php', {
+            const responsee = await fetch('delete_favorites.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -193,7 +192,7 @@ async function show_popup(card) {
             });
             heart_icon.classList.remove('change-color');
         } else {           
-            const responsee = await fetch('delete_favorites.php', {
+            const responsee = await fetch('add_favorites.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -217,8 +216,7 @@ async function show_popup(card) {
 
         const comment = commentInput.value.trim();
         const rating = parseFloat(ratingInput.value);
-
-        // Slanje podataka na server
+        
         const response = await fetch('post_comments.php', {
             method: 'POST',
             headers: {
@@ -243,9 +241,9 @@ async function show_popup(card) {
     
 }
 
-async function get_favorites_for_movie(userId) {
+async function get_favorites_for_movie() {
     try {
-        const response = await fetch(`get_favorites.php?user_id=${userId}`);
+        const response = await fetch(`get_favorites.php`);
         const data = await response.json();
         return data.favorites || []; 
     } catch (error) {
@@ -257,10 +255,9 @@ async function get_favorites_for_movie(userId) {
 // Favorite Movies
 fetch_favorite_movies()
 async function fetch_favorite_movies () {
-    main_grid.innerHTML = '';
+    main_grid.innerHTML = '';  
    
-    const userId = 1;
-    const movies_LS = await get_favorites_for_movie(userId)
+    const movies_LS = await get_favorites_for_movie()
     const movies = []
     for (let i = 0; i < movies_LS.length; i++) { 
         const movie_id = movies_LS[i].movie_id; 
@@ -269,6 +266,7 @@ async function fetch_favorite_movies () {
         movies.push(movie)
     }
 }
+
 
 function add_favorites_to_dom_from_LS (movie_data) {
     main_grid.innerHTML += `
