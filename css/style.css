@@ -280,6 +280,14 @@ nav{
 
 .change-color { color: #00f5f5; }
 
+.heart-icon {
+  color: #00f5f5;
+}
+
+.heart-icon.change-color {
+  color: red; 
+}
+
 @media only screen and (max-width: 800px) {
     .popup-container * { padding: 0; }
     .popup-container { padding: 2rem; }

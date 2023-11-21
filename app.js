@@ -16,7 +16,9 @@ function add_click_effect_to_card (cards) {
     
     cards.forEach(card => {
         card.addEventListener('click', () => show_popup(card))
+
     })
+    
 }
 
 // SEARCH MOVIES
@@ -166,22 +168,26 @@ async function show_popup(card) {
     `;
 
     const x_icon = document.querySelector('.x-icon');
-    x_icon.addEventListener('click', () => popup_container.classList.remove('show-popup'));
+    x_icon.addEventListener('click', () => {
+        popup_container.classList.remove('show-popup');      
+    });
 
     const heart_icon = popup_container.querySelector('.heart-icon');
 
-    const movie_ids =  get_favorites_for_movie(); 
+    //const movie_ids =  get_favorites_for_movie(); 
 
-    for (let i = 0; i < movie_ids.length; i++) {
-        if (movie_ids[i] == movie_id) {
-            heart_icon.classList.add('change-color');
-            break; 
-        }
+    const isFavorite = await isMovieFavorite(movie_id);    
+
+    if (isFavorite) {
+        heart_icon.classList.add('change-color');
+    } else {
+        heart_icon.classList.remove('change-color'); 
     }
 
     heart_icon.addEventListener('click', async () => {
-        if (heart_icon.classList.contains('change-color')) {           
+        if (heart_icon.classList.contains('change-color')) {         
             const responsee = await fetch('delete_favorites.php', {
+              
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -191,7 +197,8 @@ async function show_popup(card) {
                 }),
             });
             heart_icon.classList.remove('change-color');
-        } else {           
+        
+        } else {         
             const responsee = await fetch('add_favorites.php', {
                 method: 'POST',
                 headers: {
@@ -203,20 +210,23 @@ async function show_popup(card) {
             });
     
             heart_icon.classList.add('change-color');
-        }
-        fetch_favorite_movies();
+           
+        }       
+        
+        fetch_favorite_movies();      
     });
 
+    
     await fetch_comments_and_ratings(movie_id);  
 
     const submitBtn = popup_container.querySelector('.submit-btn');
     submitBtn.addEventListener('click', async () => {
         const commentInput = popup_container.querySelector('textarea');
         const ratingInput = popup_container.querySelector('input');
-
+    
         const comment = commentInput.value.trim();
         const rating = parseFloat(ratingInput.value);
-        
+    
         const response = await fetch('post_comments.php', {
             method: 'POST',
             headers: {
@@ -228,18 +238,31 @@ async function show_popup(card) {
                 rating: rating,
             }),
         });
-
+    
         const responseData = await response.json();
         if (responseData.success) {
-            console.log('Comment and rating saved successfully.');           
+            console.log('Comment and rating saved successfully.');    
+            await fetch_comments_and_ratings(movie_id);
         } else {
-            console.error('Error saving comment and rating:', responseData.error);            
+            console.error('Error saving comment and rating:', responseData.error);
         }
         commentInput.value = '';
         ratingInput.value = '';
-    });  
+    });
+    
     
 }
+async function isMovieFavorite(movie_id) {    
+    const movie_ids = await get_favorites_for_movie();
+
+    for (let i = 0; i < movie_ids.length; i++) {
+        if (String(movie_ids[i].movie_id) === String(movie_id)) {           
+            return true;
+        }
+    }    
+    return false;
+}
+
 
 async function get_favorites_for_movie() {
     try {

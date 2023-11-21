@@ -15,7 +15,7 @@
     if (isset($_POST['delete_user'])) {
         $userId = $_POST['delete_user'];
 
-        $deleteQuery = "DELETE FROM users WHERE id='$userId'";
+        $deleteQuery = "DELETE FROM users1 WHERE id='$userId'";
         $deleteResult = mysqli_query($con, $deleteQuery);
 
         if ($deleteResult) {
@@ -26,11 +26,11 @@
         }
     }
 
-    $query = "SELECT id, username, firstname, lastname, email, create_datetime, dob FROM users"; 
+    $query = "SELECT id, username, firstname, lastname, email, create_datetime, dob FROM users1"; 
     $result = mysqli_query($con, $query);
 
     if ($result) {
-        $users = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        $users1 = mysqli_fetch_all($result, MYSQLI_ASSOC);
     } else {
         echo "Error fetching users: " . mysqli_error($con);
     }
@@ -79,7 +79,7 @@
     <h2>Dobrodošli, Admin!</h2>
     <h3>Svi korisnici:</h3>
     <ul>
-        <?php foreach ($users as $user) : ?>
+        <?php foreach ($users1 as $user) : ?>
             <li>
                 <strong>Username:</strong> <?php echo $user['username']; ?><br>
                 <strong>First Name:</strong> <?php echo $user['firstname']; ?><br>

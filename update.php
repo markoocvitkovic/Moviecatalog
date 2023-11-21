@@ -22,50 +22,60 @@
                <li><a class="active" href="logout.php"><i class="fa-solid fa-house"></i> Logout</a></li>
             </ul>
          </nav>
-        <?php
-            require('db.php');
-            session_start();
+         <?php
+                require('db.php');
+                session_start();
 
-            // Check if user is logged in
-            if (!isset($_SESSION['username'])) {
-                header("Location: login.php");
-                exit();
-            }
-
-            $username = $_SESSION['username'];
-
-            if (isset($_POST['submit'])) {
-                $newUsername = mysqli_real_escape_string($con, $_POST['new_username']);
-                $newFirstName = mysqli_real_escape_string($con, $_POST['new_firstname']);
-                $newLastName = mysqli_real_escape_string($con, $_POST['new_lastname']);
-                $newEmail = mysqli_real_escape_string($con, $_POST['new_email']);
-                $newPassword = mysqli_real_escape_string($con, $_POST['new_password']);
-                $newDOB = mysqli_real_escape_string($con, $_POST['new_dob']);
-
-                $updateQuery = "UPDATE `users` SET 
-                                username = '$newUsername', 
-                                firstname = '$newFirstName', 
-                                lastname = '$newLastName', 
-                                email = '$newEmail', 
-                                password = '" . md5($newPassword) . "', 
-                                dob = '$newDOB' 
-                                WHERE username = '$username'";
-
-                $updateResult = mysqli_query($con, $updateQuery);
-
-                if ($updateResult) {
-                    echo "<div class='form'>
-                        <h3>Your profile has been updated successfully.</h3><br/>                  
-                        </div>";
-                } else {
-                    echo "<div class='form'>
-                        <h3>Error updating profile. Please try again.</h3><br/>
-                        <p class='link'>Click here to <a href='update.php'>update profile</a> again.</p>
-                        </div>";
+                if (!isset($_SESSION['username'])) {
+                    header("Location: login.php");
+                    exit();
                 }
-            } else {
+
+                $username = $_SESSION['username'];
+
+                if (isset($_POST['submit'])) {
+                    $newUsername = mysqli_real_escape_string($con, $_POST['new_username']);
+                    $newFirstName = mysqli_real_escape_string($con, $_POST['new_firstname']);
+                    $newLastName = mysqli_real_escape_string($con, $_POST['new_lastname']);
+                    $newEmail = mysqli_real_escape_string($con, $_POST['new_email']);
+                    $newDOB = mysqli_real_escape_string($con, $_POST['new_dob']);
+
+                    if (!empty($_POST['new_password'])) {
+                        $newPassword = mysqli_real_escape_string($con, $_POST['new_password']);
+                        $hashed_password = password_hash($newPassword, PASSWORD_DEFAULT);
+                        $updateQuery = "UPDATE `users1` SET 
+                                        username = '$newUsername', 
+                                        firstname = '$newFirstName', 
+                                        lastname = '$newLastName', 
+                                        email = '$newEmail', 
+                                        password = '$hashed_password', 
+                                        dob = '$newDOB' 
+                                        WHERE username = '$username'";
+                    } else {
+                        $updateQuery = "UPDATE `users1` SET 
+                                        username = '$newUsername', 
+                                        firstname = '$newFirstName', 
+                                        lastname = '$newLastName', 
+                                        email = '$newEmail', 
+                                        dob = '$newDOB' 
+                                        WHERE username = '$username'";
+                    }
+
+                    $updateResult = mysqli_query($con, $updateQuery);
+
+                    if ($updateResult) {
+                        echo "<div class='form'>
+                            <h3>Your profile has been updated successfully.</h3><br/>                  
+                            </div>";
+                    } else {
+                        echo "<div class='form'>
+                            <h3>Error updating profile. Please try again.</h3><br/>
+                            <p class='link'>Click here to <a href='update.php'>update profile</a> again.</p>
+                            </div>";
+                    }
+                } else {
               
-                $selectQuery = "SELECT * FROM `users` WHERE username = '$username'";
+                $selectQuery = "SELECT * FROM `users1` WHERE username = '$username'";
                 $result = mysqli_query($con, $selectQuery);
                 $row = mysqli_fetch_assoc($result);
         ?>
